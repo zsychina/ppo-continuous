@@ -83,8 +83,8 @@ class Agent:
         self.set_action_var(self.action_std)
 
     def action_denorm(self, action_norm: list):
-        amp = np.array(self.action_highs) - np.array(self.action_lows) / 2 # for tanh(inf)-tanh(-inf)=2
-        bias = np.array(self.action_highs) + np.array(self.action_lows) / 2
+        amp = (np.array(self.action_highs) - np.array(self.action_lows)) / 2.0 # for tanh(inf)-tanh(-inf)=2
+        bias = (np.array(self.action_highs) + np.array(self.action_lows)) / 2.0
         return (amp * action_norm + bias).tolist()
 
     def take_action(self, state):
