@@ -106,7 +106,13 @@ class Agent:
         return self.action_denorm(action.tolist())
     
     def eval(self, state):
-        pass
+        self.timestep += 1
+        state = torch.tensor(state, dtype=torch.float, device=self.device)
+        state = state.unsqueeze(0)
+        # [1, action_dim]
+        action_mean = self.actor(state)
+        action = action_mean.squeeze()
+        return self.action_denorm(action.tolist())
    
         
     def update(self):
