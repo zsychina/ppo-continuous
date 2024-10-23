@@ -2,22 +2,23 @@ import gymnasium as gym
 from agent import Agent
 import matplotlib.pyplot as plt
 
-# env = gym.make("BipedalWalker-v3")
-env = gym.make('MountainCarContinuous-v0')
+env = gym.make("BipedalWalker-v3")
+# env = gym.make('Pendulum-v1')
 
 agent = Agent(
     state_dim=env.observation_space.shape[0],
-    hidden_dim=512,
+    hidden_dim=128,
     action_dim=env.action_space.shape[0],
     action_highs=env.action_space.high,
     action_lows=env.action_space.low,
     device='cpu',
 )
 
+# agent.load()
 
 reward_step = []
 reward_episode = []
-for episode_i in range(500):
+for episode_i in range(5000):
     state, info = env.reset()
 
     episode_return = 0

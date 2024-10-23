@@ -83,6 +83,7 @@ class Agent:
         self.set_action_var(self.action_std)
 
     def action_denorm(self, action_norm: list):
+        # 放大
         amp = (np.array(self.action_highs) - np.array(self.action_lows)) / 2.0 # for tanh(inf)-tanh(-inf)=2
         bias = (np.array(self.action_highs) + np.array(self.action_lows)) / 2.0
         return (amp * action_norm + bias).tolist()
@@ -110,10 +111,13 @@ class Agent:
         
     def update(self):
         states = torch.tensor(np.array(self.buffer.states), dtype=torch.float).reshape(-1, self.state_dim).to(self.device)
-        actions = torch.tensor(np.array(self.buffer.actions), dtype=torch.int64).reshape(-1, self.action_dim).to(self.device)
+        actions = torch.tensor(np.array(self.buffer.actions), dtype=torch.float).reshape(-1, self.action_dim).to(self.device)
         rewards = torch.tensor(np.array(self.buffer.rewards), dtype=torch.float).reshape(-1, 1).to(self.device)
         next_states = torch.tensor(np.array(self.buffer.next_states), dtype=torch.float).reshape(-1, self.state_dim).to(self.device)
         dones = torch.tensor(np.array(self.buffer.dones), dtype=torch.float).reshape(-1, 1).to(self.device)
+        
+        # reward normalize
+        # rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-7)
         
         td_target = rewards + self.gamma * self.critic(next_states) * (1 - dones)
         td_delta = td_target - self.critic(states)

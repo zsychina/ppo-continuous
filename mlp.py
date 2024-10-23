@@ -9,18 +9,18 @@ class MLP(nn.Module):
         if actor:
             self.mlp = nn.Sequential(
                 nn.Linear(state_dim, hidden_dim),
-                nn.Tanh(),
+                nn.ReLU(),
                 nn.Linear(hidden_dim, hidden_dim),
-                nn.Tanh(),
+                nn.ReLU(),
                 nn.Linear(hidden_dim, out_dim),
-                nn.Tanh()
+                nn.Tanh(),
             )
         else:
             self.mlp = nn.Sequential(
                 nn.Linear(state_dim, hidden_dim),
-                nn.Tanh(),
+                nn.ReLU(),
                 nn.Linear(hidden_dim, hidden_dim),
-                nn.Tanh(),
+                nn.ReLU(),
                 nn.Linear(hidden_dim, 1),
             )            
     
