@@ -2,7 +2,8 @@ import gymnasium as gym
 from agent import Agent
 import matplotlib.pyplot as plt
 
-env = gym.make("BipedalWalker-v3")
+# env = gym.make("BipedalWalker-v3")
+env = gym.make('MountainCarContinuous-v0')
 
 agent = Agent(
     state_dim=env.observation_space.shape[0],

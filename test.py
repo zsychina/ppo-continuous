@@ -2,7 +2,8 @@ import gymnasium as gym
 from agent import Agent
 
 
-env = gym.make("BipedalWalker-v3", render_mode='human')
+# env = gym.make("BipedalWalker-v3", render_mode='human')
+env = gym.make('MountainCarContinuous-v0', render_mode='human')
 
 agent = Agent(
     state_dim=env.observation_space.shape[0],
