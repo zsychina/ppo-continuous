@@ -27,7 +27,7 @@ class Agent:
                  action_dim,
                  action_highs,
                  action_lows,
-                 action_std_init=0.6,
+                 action_std_init=0.5,
                  action_std_decay=0.05,
                  min_action_std=0.1,
                  action_std_decay_period=5e4,
@@ -128,7 +128,7 @@ class Agent:
         td_target = rewards + self.gamma * self.critic(next_states) * (1 - dones)
         td_delta = td_target - self.critic(states)
         
-        advantage = 0
+        advantage = 0.0
         advantage_list = []
         td_delta = td_delta.detach().cpu().numpy()
         for delta in td_delta[::-1]:
@@ -137,20 +137,19 @@ class Agent:
         advantage_list.reverse()
         advantage_list = torch.tensor(np.array(advantage_list), dtype=torch.float).to(self.device)
         
-        # old_log_probs = torch.log(self.actor(states).gather(-1, actions)).detach()
-        # 对于连续动作，使用概率密度函数
+
         old_action_means = self.actor(states)
-        old_cov_mat = torch.diag(self.action_var).unsqueeze(0)
-        old_dist = MultivariateNormal(old_action_means.detach(), old_cov_mat)
-        old_log_probs = old_dist.log_prob(actions)
+        old_action_var = self.action_var.expand_as(old_action_means)
+        old_cov_mat = torch.diag_embed(old_action_var)
+        old_dists = MultivariateNormal(old_action_means.detach(), old_cov_mat)
+        old_log_probs = old_dists.log_prob(actions)
         
         for _ in range(self.K_epochs):
-            # log_probs = torch.log(self.actor(states).gather(-1, actions))
-            # 对于连续动作，使用概率密度函数
-            action_mean = self.actor(states)
-            cov_mat = torch.diag(self.action_var).unsqueeze(0)
-            dist = MultivariateNormal(action_mean, cov_mat)
-            log_probs = dist.log_prob(actions)            
+            action_means = self.actor(states)
+            action_var = self.action_var.expand_as(action_means)
+            cov_mat = torch.diag_embed(action_var)
+            dists = MultivariateNormal(action_means, cov_mat)
+            log_probs = dists.log_prob(actions)
             
             ratio = torch.exp(log_probs - old_log_probs)
             surr1 = ratio * advantage_list
@@ -173,6 +172,6 @@ class Agent:
         torch.save(self.critic.state_dict(), self.model_path+'critic.pt')
     
     def load(self):
-        self.actor.load_state_dict(torch.load(self.model_path+'actor.pt', map_location=lambda storage, loc: storage))
-        self.critic.load_state_dict(torch.load(self.model_path+'critic.pt', map_location=lambda storage, loc: storage))
+        self.actor.load_state_dict(torch.load(self.model_path+'actor.pt'))
+        self.critic.load_state_dict(torch.load(self.model_path+'critic.pt'))
     
