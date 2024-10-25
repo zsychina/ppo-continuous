@@ -29,10 +29,10 @@ class Agent:
                  action_lows,
                  action_std_init=0.5,
                  action_std_decay=0.05,
-                 min_action_std=0.1,
+                 min_action_std=0.2,
                  action_std_decay_period=5e4,
-                 lmbda=0.95,
-                 gamma=0.99,
+                 lmbda=0.9,
+                 gamma=0.9,
                  eps_clip=0.2,
                  K_epochs=10,
                  lr_actor=3e-4,
@@ -111,7 +111,13 @@ class Agent:
         state = state.unsqueeze(0)
         # [1, action_dim]
         action_mean = self.actor(state)
-        action = action_mean.squeeze()
+        
+        action_var = torch.full((self.action_dim,), self.min_action_std * self.min_action_std).to(self.device)
+        cov_mat = torch.diag(action_var).unsqueeze(0)
+        dist = MultivariateNormal(action_mean, cov_mat)
+        action = dist.sample()
+        action = action.squeeze()
+        
         return self.action_denorm(action.tolist())
    
         

@@ -18,7 +18,7 @@ agent = Agent(
 
 reward_step = []
 reward_episode = []
-for episode_i in range(5000):
+for episode_i in range(1000):
     state, info = env.reset()
 
     episode_return = 0

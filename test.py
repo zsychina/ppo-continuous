@@ -21,7 +21,7 @@ for episode_i in range(10):
     episode_return = 0
     done = False
     while not done:
-        action = agent.take_action(state)
+        action = agent.eval(state)
         next_state, reward, terminated, truncated, info = env.step(action)
         
         if terminated or truncated:
